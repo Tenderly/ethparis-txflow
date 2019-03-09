@@ -9,13 +9,31 @@ import (
 	"github.com/ethereum/go-ethereum/ethdb"
 	"io/ioutil"
 	"log"
+	"os/exec"
 )
 
 var db ethdb.Database
 var cfg Config
 
+func runKill() {
+	cmd := exec.Command("scripts/shutdown.sh")
+	err := cmd.Start()
+	if err != nil {
+		log.Printf("Error while starting shutdown: %s", err)
+		return
+	}
+	err = cmd.Wait()
+	if err != nil {
+		log.Printf("Error while waiting for shutdown: %s", err)
+		return
+	}
+}
+
 func init() {
 	log.SetFlags(0)
+
+	runKill()
+
 	var err error
 	db, err = rawdb.NewLevelDBDatabase("datadir/geth/chaindata", 1024, 1024, "")
 	if err != nil {
