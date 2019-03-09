@@ -41,6 +41,7 @@ class LiveTraceService {
         line: datum.line,
         source: contractData.source,
         variant: contractData.variant,
+        params: datum.params,
       });
     }
 

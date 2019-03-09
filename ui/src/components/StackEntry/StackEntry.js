@@ -28,7 +28,7 @@ class StackEntry extends Component {
 
   render() {
     const {open} = this.state;
-    const {source, line, contractName, variant, title, level} = this.props;
+    const {source, line, contractName, variant, title, level, params} = this.props;
 
     const levelStyle = {
       marginLeft: `${level * 28}px`,
@@ -43,7 +43,7 @@ class StackEntry extends Component {
             <div className="TraceFile">{contractName}.sol</div>
           </div>
         </div>
-        {open && <Stack source={source} line={line}/>}
+        {open && <Stack source={source} line={line} params={params}/>}
       </div>
     );
   }
@@ -57,6 +57,7 @@ StackEntry.propTypes = {
   line: PropTypes.number.isRequired,
   level: PropTypes.number.isRequired,
   variant: PropTypes.number.isRequired,
+  params: PropTypes.array,
 };
 
 export default StackEntry;

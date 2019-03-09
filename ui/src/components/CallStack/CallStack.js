@@ -16,7 +16,8 @@ class CallStack extends Component {
       <div className='CallStack'>
         {frames.map((frame, i) => {
           return <StackEntry key={i} contractName={frame.contractName} level={frame.level} source={frame.source}
-                             title={frame.title} line={frame.line} contractAddress={frame.contractAddress} variant={frame.variant}/>;
+                             title={frame.title} line={frame.line} contractAddress={frame.contractAddress}
+                             variant={frame.variant} params={frame.params}/>;
         })}
       </div>
     );
