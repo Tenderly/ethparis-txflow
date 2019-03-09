@@ -17,29 +17,47 @@
       .TraceMessage {
         font-size: $FontSize200;
         font-weight: 500;
+        color: #fff;
+
+        .LineNumber {
+          background-color: transparentize(#fff, 0.9);
+          padding: 3px 6px 3px 5px;
+          font-size: 12px;
+          border-radius: 2px;
+          margin-left: 3px;
+        }
       }
 
       .PointIcon {
         margin-top: 1px;
         margin-right: 15px;
         font-size: $FontSize100;
+        color: #fff;
         opacity: 0.8;
       }
 
-      &.TraceMessageVariant0 {
-        color: #fff;
+      .TraceFile {
+        padding: 3px 8px;
+        font-weight: 500;
+        border-radius: 3px;
+        font-size: 14px;
+        margin-left: auto;
       }
 
-      &.TraceMessageVariant1 {
-        color: #fdb44b;
+      &.TraceMessageVariant0 .TraceFile {
+        background-color: #a1dd70;
       }
 
-      &.TraceMessageVariant2 {
-        color: lighten(#448ef6, 3);
+      &.TraceMessageVariant1 .TraceFile {
+        background-color: #f7b633;
       }
 
-      &.TraceMessageVariant3 {
-        color: lighten(#a06ee1, 3);
+      &.TraceMessageVariant2 .TraceFile {
+        background-color: #d5daeb;
+      }
+
+      &.TraceMessageVariant3 .TraceFile {
+        background-color: #cbbcf6;
       }
     }
   }

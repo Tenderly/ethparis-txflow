@@ -43,7 +43,8 @@ class StackEntry extends Component {
           <div className={`StackEntryHeading TraceMessageVariant${variant}`} style={levelStyle}>
             <Icon icon="circle" className="PointIcon"/>
             <div
-              className={"TraceMessage"}>{contractName}::{functionName}</div>
+              className={"TraceMessage"}>{contractName}::{functionName}()<span className="LineNumber">:{line}</span> </div>
+            <div className="TraceFile">{contractName}.sol</div>
           </div>
         </div>
         {open && <Stack source={source} line={line}/>}
