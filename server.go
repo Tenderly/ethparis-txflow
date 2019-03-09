@@ -33,10 +33,15 @@ func ServeContracts(w http.ResponseWriter, r *http.Request) {
 }
 
 func RunTrace(w http.ResponseWriter, r *http.Request) {
-	txHash := common.HexToHash(cfg.Tx)
-	from := common.HexToAddress(cfg.From)
+	txHash := common.HexToHash(r.URL.Query().Get("txHash"))
 
 	tx, blockHash, blockNumber, _ := rawdb.ReadTransaction(db, txHash)
+
+	var signer types.Signer = types.FrontierSigner{}
+	if tx.Protected() {
+		signer = types.NewEIP155Signer(tx.ChainId())
+	}
+	from, _ := types.Sender(signer, tx)
 
 	block := rawdb.ReadBlock(db, blockHash, blockNumber)
 
@@ -44,7 +49,9 @@ func RunTrace(w http.ResponseWriter, r *http.Request) {
 
 	stateDB, err := state.New(block.Root(), state.NewDatabase(db))
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("failed opening statedb: %s", err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
 	}
 
 	message := types.NewMessage(from, tx.To(), 0, tx.Value(), tx.Gas(),
@@ -56,7 +63,9 @@ func RunTrace(w http.ResponseWriter, r *http.Request) {
 
 	contracts, err := Contracts()
 	if err != nil {
-		log.Fatalf("failed parsing contracts")
+		log.Printf("failed getting contracts: %s", err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
 	}
 
 	tracer := NewTracer(contracts)
@@ -65,14 +74,17 @@ func RunTrace(w http.ResponseWriter, r *http.Request) {
 	env := vm.NewEVM(vmCtx, stateDB, chainCfg, vmConfig)
 	_, _, err = env.Call(vm.AccountRef(from), *tx.To(), tx.Data(), tx.Gas(), tx.Value())
 	if err != nil {
-		log.Fatalf("failed calling contract: %s", err)
+		log.Printf("failed calling contract: %s", err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
 	}
 
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
 	err = json.NewEncoder(w).Encode(tracer.Stack)
 	if err != nil {
-		log.Print(err)
+		log.Printf("failed sending result: %s", err)
+		return
 	}
 }
 
