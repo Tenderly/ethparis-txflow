@@ -30,13 +30,14 @@
     display: block;
     margin: 0;
     padding: $inputPaddingV $inputPaddingH;
-    color: inherit;
+    color: $BlackColor;
     font-family: $MonospaceFontFamily;
     font-size: $inputFontSize;
     font-weight: inherit;
     line-height: $inputLineHeight;
-    border: none;
+    border: 1px solid #eee;
     border-radius: 0.4rem;
+    box-sizing: border-box;
     transition: box-shadow $transitionDuration;
 
     &::placeholder {
@@ -45,7 +46,8 @@
 
     &:focus {
       outline: none;
-      box-shadow: 0.2rem 0.8rem 1.6rem transparentize($PrimaryColor600, 0.5);
+      border-color: transparentize(#393e46, 0.75);
+      box-shadow: 5px 5px 10px 0 transparentize(#000, 0.9);
     }
   }
 
@@ -54,7 +56,7 @@
     position: absolute;
     bottom: 50%;
     left: 1rem;
-    color: $WhiteColor;
+    color: $BlackColor;
     font-family: $MonospaceFontFamily;
     font-size: $inputFontSize;
     font-weight: 600;

@@ -11,7 +11,7 @@ $ExpandCodeButtonSize: 37px;
   .Stack {
     overflow: hidden;
     position: relative;
-    background-color: #1a495f;
+    background-color: darken(#393e46, 5);
     border: 1px solid rgba(255, 255, 255, 0.1);
     font-family: $MonospaceFontFamily;
 
@@ -24,14 +24,14 @@ $ExpandCodeButtonSize: 37px;
 
     .StackLine {
       line-height: 21px;
-      font-size: $FontSize200;
+      font-size: 14px;
       text-align: right;
       padding: 0 15px;
       color: transparentize($WhiteColor, 0.25);
 
       &.active {
-        border-right: 2px solid $PrimaryColor600;
-        background-color: transparentize($PrimaryColor600, 0.4);
+        border-right: 2px solid #fff;
+        background-color: transparentize(#fff, 0.9);
         font-weight: bold;
         margin-right: -1px;
         padding-right: 14px;
@@ -43,7 +43,7 @@ $ExpandCodeButtonSize: 37px;
           position: absolute;
           width: calc(100% - #{$StackLinesCodeWidth});
           left: $StackLinesCodeWidth;
-          background-color: transparentize($PrimaryColor600, 0.4);
+          background-color: transparentize(#fff, 0.9);
         }
       }
     }

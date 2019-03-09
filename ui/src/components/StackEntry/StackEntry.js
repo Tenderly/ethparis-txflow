@@ -40,10 +40,10 @@ class StackEntry extends Component {
     return (
       <div className='StackEntry'>
         <div className='StackEntryHeadingWrapper' onClick={this.handleToggle}>
-          <div className='StackEntryHeading' style={levelStyle}>
+          <div className={`StackEntryHeading TraceMessageVariant${variant}`} style={levelStyle}>
             <Icon icon="circle" className="PointIcon"/>
             <div
-              className={classNames("TraceMessage", `TraceMessageVariant${variant}`)}>{contractName}::{functionName}</div>
+              className={"TraceMessage"}>{contractName}::{functionName}</div>
           </div>
         </div>
         {open && <Stack source={source} line={line}/>}
