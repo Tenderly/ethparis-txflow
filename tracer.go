@@ -70,7 +70,7 @@ func NewTracer(contracts map[string]*TruffleContract) *Tracer {
 }
 
 func (t *Tracer) CaptureStart(from common.Address, to common.Address, call bool, input []byte, gas uint64, value *big.Int) error {
-	contract, ok := t.contracts[to.String()]
+	contract, ok := t.contracts[strings.ToLower(to.String())]
 	if !ok {
 		return nil
 	}
@@ -78,7 +78,7 @@ func (t *Tracer) CaptureStart(from common.Address, to common.Address, call bool,
 	fnDefs := DiscoverFunctionDefinitions(contract.Ast)
 
 	target := fmt.Sprintf("%x", input[:4])
-	//log.Printf("Start: from %s, to %s, call %t, input 0x%x, gas %d, value %d", from.String(), to.String(), call, input, gas, value)
+	//log.Printf("Start: from %s, to %s, call %t, input 0x%x, gas %d, value %d", from.String(), strings.ToLower(to.String()), call, input, gas, value)
 	for _, fnDef := range fnDefs {
 		ref := fnDef.Receiver()
 		if ref == target {
@@ -108,7 +108,7 @@ func (t *Tracer) CaptureStart(from common.Address, to common.Address, call bool,
 			}
 
 			t.Stack.Push(&CallFrame{
-				Contract:    to.String(),
+				Contract:    strings.ToLower(to.String()),
 				Instruction: 0,
 				Source:      strings.Split(contract.SourceCode[start:start+length], "\n")[0],
 				Depth:       0,
@@ -128,22 +128,22 @@ func (t *Tracer) CaptureState(env *vm.EVM, pc uint64, op vm.OpCode, gas, cost ui
 
 		t.LastJump = nil
 	}()
-	//log.Printf("PC %d %s // %s\n", pc, op.String(), contract.Address().String())
+	//log.Printf("PC %d %s // %s\n", pc, op.String(), strings.ToLower(contract.Address().String()))
 	switch op {
 	case vm.CALL, vm.STATICCALL, vm.DELEGATECALL, vm.CALLCODE:
 		//newAddr := common.BigToAddress(stack.Back(1))
 		t.Stack.Push(&CallFrame{
-			Contract:    contract.Address().String(),
+			Contract:    strings.ToLower(contract.Address().String()),
 			Instruction: t.toInstruction(contract, pc),
 			Depth:       uint64(depth),
 			Source:      t.toPreviousSource(contract, pc),
 			Line:        t.toLine(t.toPreviousSourceMapping(contract, t.toInstruction(contract, pc))),
 		})
 	case vm.JUMP:
-		//fmt.Printf("PC %d %s // %s\n", pc, op.String(), contract.Address().String())
+		//fmt.Printf("PC %d %s // %s\n", pc, op.String(), strings.ToLower(contract.Address().String()))
 		//fmt.Printf("JUMP TO: %s\n", common.BigToHash(stack.Back(0)).String())
 		t.LastJump = &CallFrame{
-			Contract:    contract.Address().String(),
+			Contract:    strings.ToLower(contract.Address().String()),
 			Instruction: t.toInstruction(contract, pc),
 			Depth:       uint64(depth), //@TODO: Fabricate depth
 			Source:      t.toSource(contract, pc),
@@ -173,7 +173,7 @@ func (t *Tracer) CaptureState(env *vm.EVM, pc uint64, op vm.OpCode, gas, cost ui
 }
 
 func (*Tracer) CaptureFault(env *vm.EVM, pc uint64, op vm.OpCode, gas, cost uint64, memory *vm.Memory, stack *vm.Stack, contract *vm.Contract, depth int, err error) error {
-	log.Printf("Fault: PC %d %s // %s", pc, op.String(), contract.Address().String())
+	log.Printf("Fault: PC %d %s // %s", pc, op.String(), strings.ToLower(contract.Address().String()))
 	log.Printf("Error depth %d, %s", depth, err)
 	return nil
 }
@@ -184,11 +184,11 @@ func (*Tracer) CaptureEnd(output []byte, gasUsed uint64, t time.Duration, err er
 }
 
 func (t *Tracer) toInstruction(contract *vm.Contract, pc uint64) uint64 {
-	pcToI, ok := t.instructionMaps[contract.Address().String()]
+	pcToI, ok := t.instructionMaps[strings.ToLower(contract.Address().String())]
 	if !ok {
 		pcToI = InstructionByBytecodePosition(contract.Code)
 
-		t.instructionMaps[contract.Address().String()] = pcToI
+		t.instructionMaps[strings.ToLower(contract.Address().String())] = pcToI
 	}
 
 	i, ok := pcToI[pc]
@@ -213,7 +213,7 @@ func (t *Tracer) toSource(contract *vm.Contract, pc uint64) string {
 
 	mapping := t.toSourceMapping(contract, i)
 
-	truffleContract, ok := t.contracts[contract.Address().String()]
+	truffleContract, ok := t.contracts[strings.ToLower(contract.Address().String())]
 	if !ok {
 		return "N/A"
 	}
@@ -226,7 +226,7 @@ func (t *Tracer) toPreviousSource(contract *vm.Contract, pc uint64) string {
 
 	mapping := t.toPreviousSourceMapping(contract, i)
 
-	truffleContract, ok := t.contracts[contract.Address().String()]
+	truffleContract, ok := t.contracts[strings.ToLower(contract.Address().String())]
 	if !ok {
 		return "N/A"
 	}
@@ -235,7 +235,7 @@ func (t *Tracer) toPreviousSource(contract *vm.Contract, pc uint64) string {
 }
 
 func (t *Tracer) toSourceMapping(contract *vm.Contract, instruction uint64) *SourceMapping {
-	srcMap, ok := t.sourceMaps[contract.Address().String()]
+	srcMap, ok := t.sourceMaps[strings.ToLower(contract.Address().String())]
 	if !ok {
 		return nil
 	}
@@ -248,7 +248,7 @@ func (t *Tracer) toSourceMapping(contract *vm.Contract, instruction uint64) *Sou
 }
 
 func (t *Tracer) toPreviousSourceMapping(contract *vm.Contract, instruction uint64) *SourceMapping {
-	srcMap, ok := t.sourceMaps[contract.Address().String()]
+	srcMap, ok := t.sourceMaps[strings.ToLower(contract.Address().String())]
 	if !ok {
 		return nil
 	}
@@ -267,7 +267,7 @@ func (t *Tracer) toPreviousSourceMapping(contract *vm.Contract, instruction uint
 }
 
 func (t *Tracer) isFunctionDefinition(contract *vm.Contract, mapping *SourceMapping) bool {
-	fnDefs, ok := t.functionDefs[contract.Address().String()]
+	fnDefs, ok := t.functionDefs[strings.ToLower(contract.Address().String())]
 	if !ok {
 		return false
 	}
