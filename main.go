@@ -10,6 +10,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os/exec"
+	"time"
 )
 
 var db ethdb.Database
@@ -20,13 +21,12 @@ func runKill() {
 	err := cmd.Start()
 	if err != nil {
 		log.Printf("Error while starting shutdown: %s", err)
-		return
 	}
 	err = cmd.Wait()
 	if err != nil {
 		log.Printf("Error while waiting for shutdown: %s", err)
-		return
 	}
+	time.Sleep(1000 * time.Millisecond)
 }
 
 func init() {
