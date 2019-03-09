@@ -58,10 +58,12 @@ type Network struct {
 
 type TruffleContract struct {
 	Name       string             `json:"contractName"`
-	Ast        *AstNode           `json:"ast"`
+	Ast        *AstNode           `json:"-"`
 	SourceMap  string             `json:"deployedSourceMap"`
 	SourceCode string             `json:"source"`
 	Networks   map[string]Network `json:"networks"`
+
+	Address string `json:"contractAddress"`
 }
 
 func ReadTruffleContract(path string) (*TruffleContract, error) {
