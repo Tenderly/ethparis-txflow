@@ -1,35 +1,21 @@
-var Counters = artifacts.require("./Counters.sol");
+var Calculator = artifacts.require("Calculator");
 var fs = require("fs");
 
 module.exports = async () => {
-    let instance = await Counters.deployed();
+    let instance = await Calculator.deployed();
 
     let tx;
 
-    tx = await instance.newCounter();
-    console.log(`newCounter => ${tx.receipt.blockNumber}`);
-    tx = await instance.setCounter(0, 5);
-    console.log(`setCounter(0, 5) => ${tx.receipt.blockNumber}`);
-    tx = await instance.setCounter(0, 10);
-    console.log(`setCounter(0, 10) => ${tx.receipt.blockNumber}`);
-    tx = await instance.setCounter(0, 5);
-    console.log(`setCounter(0, 5) => ${tx.receipt.blockNumber}`);
-    tx = await instance.setCounter(0, 10);
-    console.log(`setCounter(0, 10) => ${tx.receipt.blockNumber}`);
-    tx = await instance.setCounter(0, 5);
-    console.log(`setCounter(0, 5) => ${tx.receipt.blockNumber}`);
-    tx = await instance.setCounter(0, 10);
-    console.log(`setCounter(0, 10) => ${tx.receipt.blockNumber}`);
-    tx = await instance.setCounter(0, 5);
-    console.log(`setCounter(0, 5) => ${tx.receipt.blockNumber}`);
-    tx = await instance.setCounter(0, 10);
-    console.log(`setCounter(0, 10) => ${tx.receipt.blockNumber}`);
-    tx = await instance.setCounter(0, 5);
-    console.log(`setCounter(0, 5) => ${tx.receipt.blockNumber}`);
-    tx = await instance.setCounter(0, 5);
-    console.log(`setCounter(0, 5) => ${tx.receipt.blockNumber}`);
+    tx = await instance.add(5);
+    console.log(`add(5) => ${tx.tx}`);
+    tx = await instance.mul(20);
+    console.log(`mul(20) => ${tx.tx}`);
 
-    fs.writeFileSync("config.json", JSON.stringify({address: instance.address}))
-    console.log(`Address: ${instance.address}`)
+    fs.writeFileSync("config.json", JSON.stringify({
+        address: instance.address,
+
+        from: tx.receipt.from,
+        tx: tx.tx,
+    }));
 };
 
