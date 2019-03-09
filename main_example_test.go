@@ -1,18 +1,30 @@
 package main
 
 import (
+	"encoding/json"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core"
 	"github.com/ethereum/go-ethereum/core/rawdb"
 	"github.com/ethereum/go-ethereum/core/state"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/core/vm"
+	"io/ioutil"
 	"log"
 	"strings"
 	"testing"
 )
 
 func TestExample(t *testing.T) {
+	data, err := ioutil.ReadFile("config.json")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = json.Unmarshal(data, &cfg)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	txHash := common.HexToHash(cfg.Tx)
 	from := common.HexToAddress(cfg.From)
 
