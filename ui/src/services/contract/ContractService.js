@@ -22,7 +22,7 @@ class LiveContractService {
       return contractCache[address];
     }
 
-    const response = await this.client.get('/contracts');
+    const response = await this.client.get('/contract');
 
     for (const contractAddress in response.data) {
       if (!response.data.hasOwnProperty(contractAddress)) {

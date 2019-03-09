@@ -32,11 +32,11 @@ class LiveTraceService {
     const frames = [];
 
     for (const datum of data) {
-      const contractData = await ContractService.getContract(datum.contractAddress);
+      const contractData = await ContractService.getContract(datum.contract);
       frames.push({
         contractName: contractData.contractName,
         title: datum.title.trim().replace(/(^\s+)|(\s*{*$)/gm, ''),
-        contractAddress: datum.contractAddress.toLowerCase(),
+        contractAddress: datum.contract.toLowerCase(),
         level: datum.level,
         line: datum.line,
         source: contractData.source,

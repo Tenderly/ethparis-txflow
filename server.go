@@ -13,6 +13,7 @@ import (
 )
 
 func ServeContracts(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
 
 	contractsMap, err := Contracts()
@@ -67,6 +68,7 @@ func RunTrace(w http.ResponseWriter, r *http.Request) {
 		log.Fatalf("failed calling contract: %s", err)
 	}
 
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
 	err = json.NewEncoder(w).Encode(tracer.Stack)
 	if err != nil {
