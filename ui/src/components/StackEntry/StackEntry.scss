@@ -1,0 +1,45 @@
+@import "../../common/styles/colors";
+@import "../../common/styles/font";
+
+.StackEntry {
+  border-top: 1px solid transparentize($BlackColor, 0.5);
+
+  .StackEntryHeadingWrapper {
+    padding: 10px 20px;
+    cursor: pointer;
+    background-color: #193c51;
+    transition: 0.1s;
+
+    .StackEntryHeading {
+      display: flex;
+      align-items: center;
+
+      .TraceMessage {
+        font-size: $FontSize200;
+        font-weight: 900;
+
+        &.TraceMessageVariant0 {
+          color: $WhiteColor;
+        }
+
+        &.TraceMessageVariant1 {
+          color: #f1ed07;
+        }
+
+        &.TraceMessageVariant2 {
+          color: #1ce6ff;
+        }
+
+        &.TraceMessageVariant3 {
+          color: #ff5252;
+        }
+      }
+
+      .PointIcon {
+        margin-right: 15px;
+        font-size: $FontSize100;
+        color: transparentize($PrimaryColor600, 0.2);
+      }
+    }
+  }
+}
