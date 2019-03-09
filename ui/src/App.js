@@ -1,28 +1,23 @@
 import React, {Component} from 'react';
-import logo from './logo.svg';
 import './App.scss';
+import 'highlight.js/styles/dracula.css';
+import Stack from "./components/Stack";
 
 class App extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      temp: require("./services/contract/Counters"),
+    };
+  }
+
   async componentDidMount() {
   }
 
   render() {
     return (
       <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo"/>
-          <p>
-            Edit <code>src/App.js</code> and save to reload.
-          </p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-        </header>
+        <Stack line={30} source={this.state.temp}/>
       </div>
     );
   }

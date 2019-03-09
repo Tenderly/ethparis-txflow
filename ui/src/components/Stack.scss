@@ -1,0 +1,68 @@
+@import "../common/styles/colors";
+@import "../common/styles/font";
+
+$StackLinesCodeWidth: 80px;
+$StackContainerVerticalPadding: 0;
+
+.StackWrapper {
+  position: relative;
+
+  .Stack {
+    overflow: hidden;
+    position: relative;
+    border-radius: 5px;
+    background-color: #1a495f;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    font-family: $MonospaceFontFamily;
+
+    .StackLines {
+      width: $StackLinesCodeWidth;
+      padding: $StackContainerVerticalPadding 0;
+      border-right: 1px solid transparentize($WhiteColor, 0.9);
+      background-color: transparentize($BlackColor, 0.9);
+    }
+
+    .StackLine {
+      line-height: 21px;
+      font-size: $FontSize200;
+      text-align: right;
+      padding: 0 15px;
+      color: transparentize($WhiteColor, 0.25);
+
+      &.active {
+        border-right: 2px solid $PrimaryColor600;
+        background-color: transparentize($PrimaryColor600, 0.8);
+        font-weight: bold;
+        margin-right: -1px;
+        padding-right: 14px;
+        color: #fff;
+
+        &:before {
+          content: "";
+          height: 21px;
+          position: absolute;
+          width: calc(100% - #{$StackLinesCodeWidth});
+          left: $StackLinesCodeWidth;
+          background-color: transparentize($PrimaryColor600, 0.8);
+        }
+      }
+    }
+
+    .StackCode {
+      background-color: transparent;
+      position: absolute;
+      top: 0;
+      left: 80px;
+      width: calc(100% - #{$StackLinesCodeWidth});
+      padding: $StackContainerVerticalPadding 15px;
+      line-height: 21px;
+      font-size: $FontSize200;
+      margin: 0;
+      font-family: $MonospaceFontFamily;
+
+      &::selection, & *::selection {
+        background-color: transparentize($PrimaryColor600, 0.5);
+      }
+    }
+  }
+}
