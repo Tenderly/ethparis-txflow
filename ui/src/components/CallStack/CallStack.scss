@@ -1,4 +1,17 @@
 .CallStack {
   border-radius: 5px;
   overflow: hidden;
+  width: 1200px;
+  margin: 0 auto;
+  position: relative;
+  animation: moveIn 1s ease-in-out forwards;
+}
+
+@keyframes moveIn {
+  from {
+    top: 100%;
+  }
+  to {
+    top: 200px;
+  }
 }
