@@ -11,7 +11,6 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      temp: require("./services/contract/Counters"),
       frames: undefined,
       loading: false,
       loaded: false,

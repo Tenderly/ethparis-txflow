@@ -28,9 +28,7 @@ class StackEntry extends Component {
 
   render() {
     const {open} = this.state;
-    const {source, line, contractName, contractAddress, title, level} = this.props;
-
-    const variant = hashContract(contractAddress);
+    const {source, line, contractName, variant, title, level} = this.props;
 
     const levelStyle = {
       marginLeft: `${level * 28}px`,
@@ -58,6 +56,7 @@ StackEntry.propTypes = {
   title: PropTypes.string.isRequired,
   line: PropTypes.number.isRequired,
   level: PropTypes.number.isRequired,
+  variant: PropTypes.number.isRequired,
 };
 
 export default StackEntry;

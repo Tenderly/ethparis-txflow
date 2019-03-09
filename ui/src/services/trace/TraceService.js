@@ -40,6 +40,7 @@ class LiveTraceService {
         level: datum.level,
         line: datum.line,
         source: contractData.source,
+        variant: contractData.variant,
       });
     }
 
@@ -62,20 +63,6 @@ class LiveTraceService {
  * @property {string} contract_address
  * @property {string} arg_data
  */
-
-class MockTraceService {
-  /**
-   * @param {string} txHash
-   * @returns {Promise<TraceEntry[]>}
-   */
-  async getTrace(txHash) {
-    return new Promise((resolve => {
-      setTimeout(() => {
-        return resolve(require('./mock'));
-      }, 1000);
-    }));
-  }
-}
 
 const TraceService = new LiveTraceService();
 

@@ -23,41 +23,20 @@ class LiveContractService {
     }
 
     const response = await this.client.get('/contract');
+    let i = 0;
 
     for (const contractAddress in response.data) {
       if (!response.data.hasOwnProperty(contractAddress)) {
         continue;
       }
 
-      contractCache[contractAddress.toLowerCase()] = response.data[contractAddress];
+      contractCache[contractAddress.toLowerCase()] = {
+        variant: (i++ % 4),
+        ...response.data[contractAddress]
+      };
     }
 
     return contractCache[address];
-  }
-}
-
-class MockContractService {
-  /**
-   * @param {string} address
-   * @returns {Promise<Object>}
-   */
-  getContract(address) {
-    address = address.toLowerCase();
-    return new Promise((resolve => {
-      setTimeout(() => {
-        const contracts = require("./contracts-mock");
-
-        for (const contract of contracts) {
-          for (const networkId in contract.networks) {
-            if (contract.networks.hasOwnProperty(networkId) && contract.networks[networkId].address.toLowerCase() === address) {
-              return resolve(contract);
-            }
-          }
-        }
-
-        return resolve(undefined);
-      }, 1000);
-    }));
   }
 }
 
