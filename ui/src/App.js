@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import './App.scss';
 import 'highlight.js/styles/dracula.css';
-import Stack from "./components/Stack";
+import Stack from "./components/Stack/Stack";
 
 class App extends Component {
   constructor(props) {

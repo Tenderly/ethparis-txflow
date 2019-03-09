@@ -4,6 +4,7 @@ import hljs from "highlight.js";
 import hljsDefineSolidity from "highlightjs-solidity";
 
 import "./Stack.scss";
+import Icon from "../Icon/Icon";
 
 hljsDefineSolidity(hljs);
 hljs.initHighlightingOnLoad();
@@ -17,15 +18,34 @@ class Stack extends Component {
       ref: React.createRef(),
       linesAbove: 5,
       linesBelow: 5,
+      expandAboveDisabled: false,
+      expandAboveBelow: false,
+      numberOfLines: props.source.split("\n").length,
     }
   }
 
   expandAbove = () => {
-    this.setState({linesAbove: this.state.linesAbove + EXPAND_BY});
+    let {linesAbove, expandAboveDisabled} = this.state;
+    linesAbove += EXPAND_BY;
+
+    if (this.state.numberOfLines - (this.props.line + linesAbove) <= 1) {
+      linesAbove = this.props.line - 1;
+      expandAboveDisabled = true;
+    }
+
+    this.setState({linesAbove, expandAboveDisabled});
   };
 
   expandBelow = () => {
-    this.setState({linesBelow: this.state.linesBelow + EXPAND_BY});
+    let {linesBelow, expandBelowDisabled} = this.state;
+    linesBelow += EXPAND_BY;
+
+    if (this.props.line + linesBelow > this.state.numberOfLines) {
+      linesBelow = this.state.numberOfLines - this.props.line - 1;
+      expandBelowDisabled = true;
+    }
+
+    this.setState({linesBelow, expandBelowDisabled});
   };
 
   componentDidMount() {
@@ -34,7 +54,7 @@ class Stack extends Component {
 
   render() {
     const {source, line} = this.props;
-    const {linesAbove, linesBelow} = this.state;
+    const {linesAbove, linesBelow, expandAboveDisabled, expandBelowDisabled} = this.state;
 
     const lineNumbers = [];
     const wrapperStyle = {};
@@ -60,6 +80,12 @@ class Stack extends Component {
             {source}
           </pre>
         </div>
+        {!expandAboveDisabled && <div onClick={this.expandAbove} className="ExpandCodeButton Above">
+          <Icon icon='chevrons-up'/>
+        </div>}
+        {!expandBelowDisabled && <div onClick={this.expandBelow} className="ExpandCodeButton Below">
+          <Icon icon='chevrons-down'/>
+        </div>}
       </div>
     );
   }

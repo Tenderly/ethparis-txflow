@@ -1,8 +1,9 @@
-@import "../common/styles/colors";
-@import "../common/styles/font";
+@import "../../common/styles/colors";
+@import "../../common/styles/font";
 
 $StackLinesCodeWidth: 80px;
 $StackContainerVerticalPadding: 0;
+$ExpandCodeButtonSize: 37px;
 
 .StackWrapper {
   position: relative;
@@ -31,7 +32,7 @@ $StackContainerVerticalPadding: 0;
 
       &.active {
         border-right: 2px solid $PrimaryColor600;
-        background-color: transparentize($PrimaryColor600, 0.8);
+        background-color: transparentize($PrimaryColor600, 0.4);
         font-weight: bold;
         margin-right: -1px;
         padding-right: 14px;
@@ -43,7 +44,7 @@ $StackContainerVerticalPadding: 0;
           position: absolute;
           width: calc(100% - #{$StackLinesCodeWidth});
           left: $StackLinesCodeWidth;
-          background-color: transparentize($PrimaryColor600, 0.8);
+          background-color: transparentize($PrimaryColor600, 0.4);
         }
       }
     }
@@ -63,6 +64,36 @@ $StackContainerVerticalPadding: 0;
       &::selection, & *::selection {
         background-color: transparentize($PrimaryColor600, 0.5);
       }
+    }
+  }
+
+  .ExpandCodeButton {
+    cursor: pointer;
+    position: absolute;
+    right: 10px;
+    width: $ExpandCodeButtonSize;
+    height: $ExpandCodeButtonSize;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: $FontSize500;
+    border: 1px solid transparentize($SecondaryColor600, 0.7);
+    background-color: transparentize($BlackColor, 0.9);
+    transition: 0.15s;
+    color: $WhiteColor;
+
+    &:hover {
+      border-color: transparentize($SecondaryColor600, 0.3);
+      background-color: transparentize($BlackColor, 0.5);
+    }
+
+    &.Above {
+      top: 10px;
+    }
+
+    &.Below {
+      bottom: 10px;
     }
   }
 }
