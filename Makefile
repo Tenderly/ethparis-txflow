@@ -10,9 +10,3 @@ setup:
 
 reset:
 	rm -rf ./datadir
-
-contracts:
-	rm -rf ./build/*
-	truffle migrate --reset
-	rm -f ./ui/src/services/contract/contracts-mock.json
-	node ./scripts/contracts.js
