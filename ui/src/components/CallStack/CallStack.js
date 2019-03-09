@@ -10,13 +10,13 @@ class CallStack extends Component {
   }
 
   render() {
-    const {source, frames} = this.props;
+    const {frames} = this.props;
 
     return (
       <div className='CallStack'>
         {frames.map((frame, i) => {
-          return <StackEntry key={i} contractName={frame.contractName} level={frame.level} source={source}
-                             functionName={frame.functionName} line={frame.line} contractAddress={frame.contractAddress}/>;
+          return <StackEntry key={i} contractName={frame.contractName} level={frame.level} source={frame.source}
+                             title={frame.title} line={frame.line} contractAddress={frame.contractAddress}/>;
         })}
       </div>
     );
@@ -24,7 +24,6 @@ class CallStack extends Component {
 }
 
 CallStack.propTypes = {
-  source: PropTypes.string.isRequired,
   frames: PropTypes.arrayOf(PropTypes.object).isRequired,
 };
 

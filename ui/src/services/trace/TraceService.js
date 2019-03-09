@@ -1,4 +1,52 @@
+import axios from 'axios';
+import ContractService from "../contract/ContractService";
+
+const baseUrl = process.env.REACT_APP_API_BASE_URL;
+const port = process.env.REACT_APP_API_PORT;
+
+const txCache = {};
+
 class LiveTraceService {
+  constructor() {
+    this.client = axios.create({
+      baseURL: `${baseUrl}:${port}`,
+    });
+  }
+
+  /**
+   * @param {string} txHash
+   * @returns {Promise<TraceEntry[]>}
+   */
+  async getTrace(txHash) {
+    txHash = txHash.toLowerCase();
+    if (txCache.hasOwnProperty(txHash)) {
+      return txCache[txHash];
+    }
+
+    const response = await this.client.get('/tx', {
+      params: {txHash}
+    });
+
+    const data = response.data;
+
+    const frames = [];
+
+    for (const datum of data) {
+      const contractData = await ContractService.getContract(datum.contractAddress);
+      frames.push({
+        contractName: contractData.contractName,
+        title: datum.title.trim().replace(/(^\s+)|(\s*{*$)/gm, ''),
+        contractAddress: datum.contractAddress.toLowerCase(),
+        level: datum.level,
+        line: datum.line,
+        source: contractData.source,
+      });
+    }
+
+    txCache[txHash] = frames;
+
+    return txCache[txHash];
+  }
 }
 
 /**
@@ -23,6 +71,6 @@ class MockTraceService {
   }
 }
 
-const TraceService = new MockTraceService();
+const TraceService = new LiveTraceService();
 
 export default TraceService;

@@ -1,6 +1,5 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
-import classNames from 'classnames';
 import Stack from "../Stack/Stack";
 
 import "./StackEntry.scss";
@@ -29,7 +28,7 @@ class StackEntry extends Component {
 
   render() {
     const {open} = this.state;
-    const {source, line, contractName, contractAddress, functionName, level} = this.props;
+    const {source, line, contractName, contractAddress, title, level} = this.props;
 
     const variant = hashContract(contractAddress);
 
@@ -42,8 +41,7 @@ class StackEntry extends Component {
         <div className='StackEntryHeadingWrapper' onClick={this.handleToggle}>
           <div className={`StackEntryHeading TraceMessageVariant${variant}`} style={levelStyle}>
             <Icon icon="circle" className="PointIcon"/>
-            <div
-              className={"TraceMessage"}>{contractName}::{functionName}()<span className="LineNumber">:{line}</span> </div>
+            <div className={"TraceMessage"}>{title}<span className="LineNumber">:{line}</span></div>
             <div className="TraceFile">{contractName}.sol</div>
           </div>
         </div>
@@ -57,7 +55,7 @@ StackEntry.propTypes = {
   source: PropTypes.string.isRequired,
   contractName: PropTypes.string.isRequired,
   contractAddress: PropTypes.string.isRequired,
-  functionName: PropTypes.string.isRequired,
+  title: PropTypes.string.isRequired,
   line: PropTypes.number.isRequired,
   level: PropTypes.number.isRequired,
 };

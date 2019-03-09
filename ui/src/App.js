@@ -5,6 +5,7 @@ import CallStack from "./components/CallStack/CallStack";
 import Search from "./components/Search/Search";
 import Spinner from "./components/Spinner/Spinner";
 import classNames from 'classnames';
+import TraceService from "./services/trace/TraceService";
 
 class App extends Component {
   constructor(props) {
@@ -14,6 +15,7 @@ class App extends Component {
       frames: undefined,
       loading: false,
       loaded: false,
+      source: undefined,
     };
   }
 
@@ -21,17 +23,22 @@ class App extends Component {
   }
 
   onSearch = async (tx) => {
-    this.setState({loading: true, loaded: false});
-    return new Promise((resolve => {
-      setTimeout(() => {
-        this.setState({
-          loading: false,
-          frames: require('./frames').default,
-          loaded: true,
-        });
-        resolve();
-      }, 1000)
-    }));
+    try {
+      this.setState({loading: true, loaded: false});
+      const frames = await TraceService.getTrace(tx);
+
+      this.setState({
+        loading: false,
+        frames: frames,
+        loaded: true,
+      });
+    } catch (e) {
+      console.error(e);
+      this.setState({
+        loading: false,
+        loaded: false,
+      });
+    }
   };
 
   render() {
@@ -42,7 +49,7 @@ class App extends Component {
         {(loading || loaded) && <Spinner className={classNames({loading, loaded})}/>}
         <Search className={classNames({MoveUp: loading || (frames && frames.length)})} onSearch={this.onSearch}/>
 
-        {!loading && frames && frames.length && <CallStack source={this.state.temp} frames={frames}/>}
+        {!loading && frames && frames.length && <CallStack frames={frames}/>}
       </div>
     );
   }

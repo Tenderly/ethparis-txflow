@@ -21,13 +21,12 @@ class Search extends Component {
   };
 
   handleSearch = async (event) => {
-    if (event.key !== 'Enter') {
+    if (event.key !== 'Enter' || !this.state.tx.length) {
       return;
     }
 
     this.setState({enabled: false});
     await this.props.onSearch(this.state.tx);
-    console.log('asd')
     this.setState({enabled: true});
   };
 
@@ -38,7 +37,8 @@ class Search extends Component {
       <div className={classNames('Search', this.props.className)}>
         <div className='Input'>
           <input disabled={!enabled} id='search' className='InputText' type='text' value={tx}
-                 onChange={this.handleChange} onKeyUp={this.handleSearch} placeholder='Tx Hash' autoComplete='off'/>
+                 onChange={this.handleChange} onKeyUp={this.handleSearch} placeholder='Tx Hash' autoComplete='off'
+                 autoFocus={true}/>
           <label htmlFor="search" className="SearchLabel">Tx Hash</label>
         </div>
       </div>
