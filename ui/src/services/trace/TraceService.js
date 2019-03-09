@@ -45,7 +45,13 @@ class LiveTraceService {
 
     txCache[txHash] = frames;
 
-    return txCache[txHash];
+    const timeout = window.location.href.indexOf('normal') !== -1 ? 0 : 2000;
+
+    return new Promise(resolve => {
+      setTimeout(() => {
+        return resolve(txCache[txHash]);
+      }, timeout);
+    });
   }
 }
 
