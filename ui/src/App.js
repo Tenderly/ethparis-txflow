@@ -16,7 +16,6 @@ class App extends Component {
       frames: undefined,
       loading: false,
       loaded: false,
-      source: undefined,
     };
   }
 
@@ -38,6 +37,7 @@ class App extends Component {
       this.setState({
         loading: false,
         loaded: false,
+        frames: undefined,
       });
     }
   };

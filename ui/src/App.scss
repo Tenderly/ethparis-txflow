@@ -21,6 +21,9 @@ $logoHeight: 60px;
     height: $logoHeight;
     left: calc(50% - #{$logoWidth/2});
     top: 250px;
+    visibility: visible;
+    opacity: 100%;
+    transition: visibility 200ms, opacity 200ms linear;
 
     &.loading {
       visibility: hidden;
