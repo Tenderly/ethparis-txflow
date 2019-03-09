@@ -93,11 +93,26 @@ func (t *Tracer) CaptureStart(from common.Address, to common.Address, call bool,
 			}
 			length, err := strconv.Atoi(parts[1])
 
+			i := 0
+			l := 1
+			c := 1
+
+			for i < start {
+				if contract.SourceCode[i] == '\n' {
+					l++
+					c = 0
+				}
+
+				c++
+				i++
+			}
+
 			t.Stack.Push(&CallFrame{
 				Contract:    to.String(),
 				Instruction: 0,
 				Source:      strings.Split(contract.SourceCode[start:start+length], "\n")[0],
 				Depth:       0,
+				Line:        l,
 			})
 		}
 	}
@@ -122,7 +137,7 @@ func (t *Tracer) CaptureState(env *vm.EVM, pc uint64, op vm.OpCode, gas, cost ui
 			Instruction: t.toInstruction(contract, pc),
 			Depth:       uint64(depth),
 			Source:      t.toPreviousSource(contract, pc),
-			Line:        t.toLine(t.toPreviousSourceMapping(contract, pc)),
+			Line:        t.toLine(t.toPreviousSourceMapping(contract, t.toInstruction(contract, pc))),
 		})
 	case vm.JUMP:
 		//fmt.Printf("PC %d %s // %s\n", pc, op.String(), contract.Address().String())
@@ -132,7 +147,7 @@ func (t *Tracer) CaptureState(env *vm.EVM, pc uint64, op vm.OpCode, gas, cost ui
 			Instruction: t.toInstruction(contract, pc),
 			Depth:       uint64(depth), //@TODO: Fabricate depth
 			Source:      t.toSource(contract, pc),
-			Line:        t.toLine(t.toSourceMapping(contract, pc)),
+			Line:        t.toLine(t.toSourceMapping(contract, t.toInstruction(contract, pc))),
 		}
 
 		return nil
