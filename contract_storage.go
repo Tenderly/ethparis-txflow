@@ -58,7 +58,7 @@ type Network struct {
 
 type TruffleContract struct {
 	Name       string             `json:"contractName"`
-	Ast        *AstNode           `json:"-"`
+	Ast        *AstNode           `json:"ast"`
 	SourceMap  string             `json:"deployedSourceMap"`
 	SourceCode string             `json:"source"`
 	Networks   map[string]Network `json:"networks"`
