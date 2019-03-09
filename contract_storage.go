@@ -101,7 +101,7 @@ func Contracts() (map[string]*TruffleContract, error) {
 		}
 
 		for _, network := range contract.Networks {
-			contracts[network.Address] = contract
+			contracts[strings.ToLower(network.Address)] = contract
 		}
 	}
 

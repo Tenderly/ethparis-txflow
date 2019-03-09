@@ -9,9 +9,10 @@ import (
 	"github.com/ethereum/go-ethereum/core/vm"
 	"log"
 	"strings"
+	"testing"
 )
 
-func ExampleRunning() {
+func TestExample(t *testing.T) {
 	txHash := common.HexToHash(cfg.Tx)
 	from := common.HexToAddress(cfg.From)
 
@@ -53,6 +54,6 @@ func ExampleRunning() {
 		//log.Printf("Depth: %d, Contract: %s, Instruction: %d // %s", frame.Depth, frame.Contract, frame.Instruction, frame.Source)
 		contract := contracts[frame.Contract]
 
-		log.Printf("%s:%d%s%s", contract.Name, frame.Line, strings.Repeat("\t", int(frame.Depth+2)), frame.Source)
+		log.Printf("%s:%d %s%s", contract.Name, frame.Line, strings.Repeat("\t", int(frame.Depth)), frame.Source)
 	}
 }

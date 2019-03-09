@@ -20,6 +20,8 @@ type CallFrame struct {
 	Source      string `json:"title"`
 	Line        int    `json:"line"`
 
+	PC uint64
+
 	Depth uint64 `json:"level"`
 }
 
@@ -37,6 +39,23 @@ func (s *CallStack) Pop() {
 	*s = (*s)[:len(*s)-1]
 }
 
+func (s *CallStack) Peek() *CallFrame {
+	if len(*s) == 0 {
+		return nil
+	}
+	return (*s)[len(*s)-1]
+}
+
+func (s *CallStack) Lookup(pc uint64) bool {
+	for i := len(*s) - 1; i >= 0; i-- {
+		if (*s)[i].PC == pc {
+			return true
+		}
+	}
+
+	return false
+}
+
 type Tracer struct {
 	LastJump *CallFrame
 
@@ -48,6 +67,8 @@ type Tracer struct {
 	sourceMaps      map[string][]*SourceMapping
 	receivers       map[string][]string
 	functionDefs    map[string][]*AstNode
+
+	jumpDepth int64
 }
 
 func NewTracer(contracts map[string]*TruffleContract) *Tracer {
@@ -131,13 +152,17 @@ func (t *Tracer) CaptureState(env *vm.EVM, pc uint64, op vm.OpCode, gas, cost ui
 	//log.Printf("PC %d %s // %s\n", pc, op.String(), strings.ToLower(contract.Address().String()))
 	switch op {
 	case vm.CALL, vm.STATICCALL, vm.DELEGATECALL, vm.CALLCODE:
+		//t.jumpDepth++
 		//newAddr := common.BigToAddress(stack.Back(1))
 		t.Stack.Push(&CallFrame{
 			Contract:    strings.ToLower(contract.Address().String()),
 			Instruction: t.toInstruction(contract, pc),
-			Depth:       uint64(depth),
-			Source:      t.toPreviousSource(contract, pc),
-			Line:        t.toLine(t.toPreviousSourceMapping(contract, t.toInstruction(contract, pc))),
+			//Depth:       uint64(t.jumpDepth),
+			Depth:  uint64(depth) + uint64(t.jumpDepth),
+			Source: t.toPreviousSource(contract, pc),
+			Line:   t.toLine(t.toPreviousSourceMapping(contract, t.toInstruction(contract, pc))),
+
+			//PC: pc,
 		})
 	case vm.JUMP:
 		//fmt.Printf("PC %d %s // %s\n", pc, op.String(), strings.ToLower(contract.Address().String()))
@@ -145,13 +170,27 @@ func (t *Tracer) CaptureState(env *vm.EVM, pc uint64, op vm.OpCode, gas, cost ui
 		t.LastJump = &CallFrame{
 			Contract:    strings.ToLower(contract.Address().String()),
 			Instruction: t.toInstruction(contract, pc),
-			Depth:       uint64(depth), //@TODO: Fabricate depth
-			Source:      t.toSource(contract, pc),
-			Line:        t.toLine(t.toSourceMapping(contract, t.toInstruction(contract, pc))),
+			//Depth:       uint64(t.jumpDepth),
+			Depth:  uint64(depth) + uint64(t.jumpDepth),
+			Source: t.toSource(contract, pc),
+			Line:   t.toLine(t.toSourceMapping(contract, t.toInstruction(contract, pc))),
+
+			PC: pc,
 		}
 
 		return nil
 	case vm.JUMPDEST:
+		if t.Stack.Lookup(pc - 1) {
+			t.jumpDepth--
+			if t.jumpDepth < 0 {
+				//panic("oops")
+				fmt.Println("JUMP DEPTH WENT OUT OF BOUNDS")
+				t.jumpDepth = 0
+			}
+
+			return nil
+		}
+
 		i := t.toInstruction(contract, pc)
 		srcMapping := t.toSourceMapping(contract, i)
 		if srcMapping == nil {
@@ -164,9 +203,11 @@ func (t *Tracer) CaptureState(env *vm.EVM, pc uint64, op vm.OpCode, gas, cost ui
 			}
 
 			t.Stack.Push(t.LastJump)
+			t.jumpDepth++
 			//fmt.Printf("JUMPDEST %d %d %d:%d\n", pc, i, srcMapping.Start, srcMapping.Length)
 		}
 	case vm.RETURN, vm.REVERT, vm.STOP, vm.SELFDESTRUCT, InvalidOpcode:
+		//t.jumpDepth--
 	}
 
 	return nil
