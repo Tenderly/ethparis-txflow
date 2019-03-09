@@ -1,4 +1,4 @@
-.PHONY: geth reset
+.PHONY: geth reset contracts
 
 geth:
 	geth --datadir ./datadir --dev --gcmode archive \
@@ -10,3 +10,9 @@ setup:
 
 reset:
 	rm -rf ./datadir
+
+contracts:
+	rm -rf ./build/*
+	truffle migrate --reset
+	rm -f ./ui/src/services/contract/contracts-mock.json
+	node ./scripts/contracts.js

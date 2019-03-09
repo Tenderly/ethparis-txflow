@@ -1,0 +1,98 @@
+@import "../../common/styles/colors";
+@import "../../common/styles/font";
+
+$StackLinesCodeWidth: 80px;
+$StackContainerVerticalPadding: 0;
+$ExpandCodeButtonSize: 37px;
+
+.StackWrapper {
+  position: relative;
+
+  .Stack {
+    overflow: hidden;
+    position: relative;
+    background-color: darken(#393e46, 5);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    font-family: $MonospaceFontFamily;
+
+    .StackLines {
+      width: $StackLinesCodeWidth;
+      padding: $StackContainerVerticalPadding 0;
+      border-right: 1px solid transparentize($WhiteColor, 0.9);
+      background-color: transparentize($BlackColor, 0.9);
+    }
+
+    .StackLine {
+      line-height: 21px;
+      font-size: 14px;
+      text-align: right;
+      padding: 0 15px;
+      color: transparentize($WhiteColor, 0.25);
+
+      &.active {
+        border-right: 2px solid #fff;
+        background-color: transparentize(#fff, 0.9);
+        font-weight: bold;
+        margin-right: -1px;
+        padding-right: 14px;
+        color: #fff;
+
+        &:before {
+          content: "";
+          height: 21px;
+          position: absolute;
+          width: calc(100% - #{$StackLinesCodeWidth});
+          left: $StackLinesCodeWidth;
+          background-color: transparentize(#fff, 0.9);
+        }
+      }
+    }
+
+    .StackCode {
+      background-color: transparent;
+      position: absolute;
+      top: 0;
+      left: 80px;
+      width: calc(100% - #{$StackLinesCodeWidth});
+      padding: $StackContainerVerticalPadding 15px;
+      line-height: 21px;
+      font-size: $FontSize200;
+      margin: 0;
+      font-family: $MonospaceFontFamily;
+
+      &::selection, & *::selection {
+        background-color: transparentize($PrimaryColor600, 0.5);
+      }
+    }
+  }
+
+  .ExpandCodeButton {
+    cursor: pointer;
+    position: absolute;
+    right: 10px;
+    width: $ExpandCodeButtonSize;
+    height: $ExpandCodeButtonSize;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: $FontSize500;
+    border: 1px solid transparentize($SecondaryColor600, 0.7);
+    background-color: transparentize($BlackColor, 0.9);
+    transition: 0.15s;
+    color: $WhiteColor;
+
+    &:hover {
+      border-color: transparentize($SecondaryColor600, 0.3);
+      background-color: transparentize($BlackColor, 0.5);
+    }
+
+    &.Above {
+      top: 10px;
+    }
+
+    &.Below {
+      bottom: 10px;
+    }
+  }
+}

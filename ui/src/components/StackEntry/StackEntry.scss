@@ -1,0 +1,64 @@
+@import "../../common/styles/colors";
+@import "../../common/styles/font";
+
+.StackEntry {
+  border-top: 1px solid darken(#232931, 2);
+
+  .StackEntryHeadingWrapper {
+    padding: 10px 20px;
+    cursor: pointer;
+    background-color: #232931;
+    transition: 0.1s;
+
+    .StackEntryHeading {
+      display: flex;
+      align-items: center;
+
+      .TraceMessage {
+        font-size: $FontSize200;
+        font-weight: 500;
+        color: #fff;
+
+        .LineNumber {
+          background-color: transparentize(#fff, 0.9);
+          padding: 3px 6px 3px 5px;
+          font-size: 12px;
+          border-radius: 2px;
+          margin-left: 3px;
+        }
+      }
+
+      .PointIcon {
+        margin-top: 1px;
+        margin-right: 15px;
+        font-size: $FontSize100;
+        color: #fff;
+        opacity: 0.8;
+      }
+
+      .TraceFile {
+        padding: 3px 8px;
+        font-weight: 500;
+        border-radius: 3px;
+        font-size: 14px;
+        margin-left: auto;
+      }
+
+      &.TraceMessageVariant0 .TraceFile {
+        background-color: #a1dd70;
+      }
+
+      &.TraceMessageVariant1 .TraceFile {
+        background-color: #f7b633;
+      }
+
+      &.TraceMessageVariant2 .TraceFile {
+        background-color: #d5daeb;
+      }
+
+      &.TraceMessageVariant3 .TraceFile {
+        background-color: #cbbcf6;
+      }
+    }
+  }
+}
