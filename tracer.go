@@ -168,7 +168,25 @@ func (t *Tracer) CaptureState(env *vm.EVM, pc uint64, op vm.OpCode, gas, cost ui
 	}()
 	//log.Printf("PC %d %s // %s\n", pc, op.String(), strings.ToLower(contract.Address().String()))
 	switch op {
-	case vm.CALL, vm.STATICCALL, vm.DELEGATECALL, vm.CALLCODE:
+	case vm.CALL, vm.CALLCODE:
+		addr := stack.Back(1)
+		data := memory.Get(stack.Back(3).Int64(), stack.Back(4).Int64())
+		receiver := data[:4]
+
+		fnDef := t.findFnDef(common.BigToAddress(addr).String(), receiver)
+
+		var params []string
+		offset := 4
+		for _, param := range fnDef.Parameters.Parameters {
+			p, o := DecodeParam(param, offset, data)
+			offset += o
+			if p == "" {
+				continue
+			}
+
+			params = append(params, p)
+		}
+
 		//t.jumpDepth++
 		//newAddr := common.BigToAddress(stack.Back(1))
 		t.Stack.Push(&CallFrame{
@@ -179,6 +197,40 @@ func (t *Tracer) CaptureState(env *vm.EVM, pc uint64, op vm.OpCode, gas, cost ui
 			Source: t.toPreviousSource(contract, pc),
 			Line:   t.toLine(t.toPreviousSourceMapping(contract, t.toInstruction(contract, pc))),
 
+			Params: params,
+			//PC: pc,
+		})
+
+	case vm.STATICCALL, vm.DELEGATECALL:
+		addr := stack.Back(1)
+		data := memory.Get(stack.Back(3).Int64(), stack.Back(4).Int64())
+		receiver := data[:4]
+
+		fnDef := t.findFnDef(common.BigToAddress(addr).String(), receiver)
+
+		var params []string
+		offset := 4
+		for _, param := range fnDef.Parameters.Parameters {
+			p, o := DecodeParam(param, offset, data)
+			offset += o
+			if p == "" {
+				continue
+			}
+
+			params = append(params, p)
+		}
+
+		//t.jumpDepth++
+		//newAddr := common.BigToAddress(stack.Back(1))
+		t.Stack.Push(&CallFrame{
+			Contract:    strings.ToLower(contract.Address().String()),
+			Instruction: t.toInstruction(contract, pc),
+			//Depth:       uint64(t.jumpDepth),
+			Depth:  uint64(depth) + uint64(t.jumpDepth),
+			Source: t.toPreviousSource(contract, pc),
+			Line:   t.toLine(t.toPreviousSourceMapping(contract, t.toInstruction(contract, pc))),
+
+			Params: params,
 			//PC: pc,
 		})
 	case vm.JUMP:
@@ -368,4 +420,25 @@ func DecodeParam(node *AstNode, offset int, input []byte) (string, int) {
 	}
 
 	return "", 32
+}
+
+func (t *Tracer) findFnDef(addr string, receiver []byte) *AstNode {
+	contract, ok := t.contracts[strings.ToLower(addr)]
+	if !ok {
+		return nil
+	}
+
+	fnDefs := DiscoverFunctionDefinitions(contract.Ast)
+
+	target := fmt.Sprintf("%x", receiver[:4])
+	for _, fnDef := range fnDefs {
+		ref := fnDef.Receiver()
+		if ref != target {
+			continue
+		}
+
+		return fnDef
+	}
+
+	return nil
 }
