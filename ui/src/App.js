@@ -1,15 +1,9 @@
 import React, {Component} from 'react';
 import logo from './logo.svg';
 import './App.scss';
-import TraceService from "./services/trace/TraceService";
-import ContractService from "./services/contract/ContractService";
 
 class App extends Component {
   async componentDidMount() {
-    const trace = await TraceService.getTrace('0x1232');
-    console.log(trace);
-    const contracts = await ContractService.getContracts(['0x1', '0x2']);
-    console.log(contracts);
   }
 
   render() {

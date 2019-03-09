@@ -3,14 +3,24 @@ class LiveContractService {
 
 class MockContractService {
   /**
-   * @param {string[]} addresses
-   * @returns {Promise<Object[]>}
+   * @param {string} address
+   * @returns {Promise<Object>}
    */
-  getContracts(addresses) {
+  getContract(address) {
+    address = address.toLowerCase();
     return new Promise((resolve => {
       setTimeout(() => {
         const contracts = require("./contracts-mock");
-        return resolve(contracts);
+
+        for (const contract of contracts) {
+          for (const networkId in contract.networks) {
+            if (contract.networks.hasOwnProperty(networkId) && contract.networks[networkId].address.toLowerCase() === address) {
+              return resolve(contract);
+            }
+          }
+        }
+
+        return resolve(undefined);
       }, 1000);
     }));
   }
