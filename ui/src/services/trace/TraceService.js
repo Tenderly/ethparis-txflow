@@ -2,10 +2,6 @@ class LiveTraceService {
 }
 
 class MockTraceService {
-  constructor() {
-    this.mock = require('./mock');
-  }
-
   /**
    * @param {string} txHash
    * @returns {Promise<Object[]>}
@@ -13,7 +9,7 @@ class MockTraceService {
   async getTrace(txHash) {
     return new Promise((resolve => {
       setTimeout(() => {
-        return resolve(this.mock);
+        return resolve(require('./mock'));
       }, 1000);
     }));
   }

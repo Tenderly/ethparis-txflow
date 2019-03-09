@@ -2,10 +2,6 @@ class LiveContractService {
 }
 
 class MockContractService {
-  constructor() {
-    this.mock = require('./contracts-mock');
-  }
-
   /**
    * @param {string[]} addresses
    * @returns {Promise<Object[]>}
@@ -13,7 +9,8 @@ class MockContractService {
   getContracts(addresses) {
     return new Promise((resolve => {
       setTimeout(() => {
-        return resolve(this.mock);
+        const contracts = require("./contracts-mock");
+        return resolve(contracts);
       }, 1000);
     }));
   }
