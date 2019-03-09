@@ -6,7 +6,7 @@ $SpinnerSize: 150px;
   &.loaded {
     visibility: hidden;
     opacity: 0;
-    transition: visibility 1s 1s, opacity 1s 1s linear;
+    transition: visibility 200ms 400ms, opacity 200ms 400ms linear;
   }
 
   .breeding-rhombus-spinner {
