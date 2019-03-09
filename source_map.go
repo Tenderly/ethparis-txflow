@@ -9,9 +9,12 @@ import (
 type SourceMapping struct {
 	Start  int
 	Length int
+
+	Line   int
+	Column int
 }
 
-func ParseSourceMap(srcmap string) []*SourceMapping {
+func ParseSourceMap(srcmap string, source string) []*SourceMapping {
 	var sourceMap []*SourceMapping
 
 	var prev SourceMapping
@@ -48,6 +51,25 @@ func ParseSourceMap(srcmap string) []*SourceMapping {
 
 		sourceMap = append(sourceMap, &next)
 		prev = next
+	}
+
+	for _, mapping := range sourceMap {
+		i := 0
+		l := 1
+		c := 1
+
+		for i < mapping.Start {
+			if source[i] == '\n' {
+				l++
+				c = 0
+			}
+
+			c++
+			i++
+		}
+
+		mapping.Line = l
+		mapping.Column = c
 	}
 
 	return sourceMap

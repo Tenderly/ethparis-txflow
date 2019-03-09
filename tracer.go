@@ -6,6 +6,7 @@ import (
 	"github.com/ethereum/go-ethereum/core/vm"
 	"log"
 	"math/big"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -14,11 +15,12 @@ import (
 var InvalidOpcode vm.OpCode = 0xfe
 
 type CallFrame struct {
-	Contract    string
-	Instruction uint64
-	Source      string
+	Contract    string `json:"contract"`
+	Instruction uint64 `json:"instruction"`
+	Source      string `json:"title"`
+	Line        int    `json:"line"`
 
-	Depth uint64
+	Depth uint64 `json:"level"`
 }
 
 type CallStack []*CallFrame
@@ -59,29 +61,27 @@ func NewTracer(contracts map[string]*TruffleContract) *Tracer {
 	}
 
 	for addr, contract := range contracts {
-		t.sourceMaps[addr] = ParseSourceMap(contract.SourceMap)
+		t.sourceMaps[addr] = ParseSourceMap(contract.SourceMap, contract.SourceCode)
 		t.receivers[addr] = DiscoverReceivers(contract.Ast)
-		t.functionDefs[addr] = DiscoverFunctionDefinitions(contract.Ast)
+		t.functionDefs[addr] = DiscoverPrivateFunctionDefinitions(contract.Ast)
 	}
 
 	return t
 }
 
 func (t *Tracer) CaptureStart(from common.Address, to common.Address, call bool, input []byte, gas uint64, value *big.Int) error {
-	fnDefs, ok := t.functionDefs[to.String()]
-	if !ok {
-		return nil
-	}
-
 	contract, ok := t.contracts[to.String()]
 	if !ok {
 		return nil
 	}
 
-	target := fmt.Sprintf("%x", input[:8])
+	fnDefs := DiscoverFunctionDefinitions(contract.Ast)
+
+	target := fmt.Sprintf("%x", input[:4])
 	//log.Printf("Start: from %s, to %s, call %t, input 0x%x, gas %d, value %d", from.String(), to.String(), call, input, gas, value)
 	for _, fnDef := range fnDefs {
-		if fnDef.Receiver() == target {
+		ref := fnDef.Receiver()
+		if ref == target {
 			parts := strings.Split(fnDef.Source, ":")
 			if len(parts) < 2 {
 				panic("No parts")
@@ -96,7 +96,7 @@ func (t *Tracer) CaptureStart(from common.Address, to common.Address, call bool,
 			t.Stack.Push(&CallFrame{
 				Contract:    to.String(),
 				Instruction: 0,
-				Source:      contract.SourceCode[start : start+length],
+				Source:      strings.Split(contract.SourceCode[start:start+length], "\n")[0],
 				Depth:       0,
 			})
 		}
@@ -122,6 +122,7 @@ func (t *Tracer) CaptureState(env *vm.EVM, pc uint64, op vm.OpCode, gas, cost ui
 			Instruction: t.toInstruction(contract, pc),
 			Depth:       uint64(depth),
 			Source:      t.toPreviousSource(contract, pc),
+			Line:        t.toLine(t.toPreviousSourceMapping(contract, pc)),
 		})
 	case vm.JUMP:
 		//fmt.Printf("PC %d %s // %s\n", pc, op.String(), contract.Address().String())
@@ -131,7 +132,9 @@ func (t *Tracer) CaptureState(env *vm.EVM, pc uint64, op vm.OpCode, gas, cost ui
 			Instruction: t.toInstruction(contract, pc),
 			Depth:       uint64(depth), //@TODO: Fabricate depth
 			Source:      t.toSource(contract, pc),
+			Line:        t.toLine(t.toSourceMapping(contract, pc)),
 		}
+
 		return nil
 	case vm.JUMPDEST:
 		i := t.toInstruction(contract, pc)
@@ -141,6 +144,10 @@ func (t *Tracer) CaptureState(env *vm.EVM, pc uint64, op vm.OpCode, gas, cost ui
 		}
 
 		if t.isFunctionDefinition(contract, srcMapping) && t.LastJump != nil {
+			if ok, err := regexp.MatchString(`(?m)function(.*\s)+}`, t.LastJump.Source); ok || err != nil {
+				return nil
+			}
+
 			t.Stack.Push(t.LastJump)
 			//fmt.Printf("JUMPDEST %d %d %d:%d\n", pc, i, srcMapping.Start, srcMapping.Length)
 		}
@@ -176,6 +183,14 @@ func (t *Tracer) toInstruction(contract *vm.Contract, pc uint64) uint64 {
 	}
 
 	return i
+}
+
+func (t *Tracer) toLine(mapping *SourceMapping) int {
+	if mapping == nil {
+		return 0
+	}
+
+	return mapping.Line
 }
 
 func (t *Tracer) toSource(contract *vm.Contract, pc uint64) string {

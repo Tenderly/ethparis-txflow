@@ -1,9 +1,23 @@
 package main
 
-func DiscoverFunctionDefinitions(node *AstNode) []*AstNode {
+func DiscoverPrivateFunctionDefinitions(node *AstNode) []*AstNode {
 	if node.NodeType == NodeTypeFunctionDefinition &&
 		node.Kind != "constructor" &&
 		node.Visibility == "private" {
+		return []*AstNode{node}
+	}
+
+	var receivers []*AstNode
+	for _, n := range node.Nodes {
+		receivers = append(receivers, DiscoverPrivateFunctionDefinitions(n)...)
+	}
+
+	return receivers
+}
+
+func DiscoverFunctionDefinitions(node *AstNode) []*AstNode {
+	if node.NodeType == NodeTypeFunctionDefinition &&
+		node.Kind != "constructor" {
 		return []*AstNode{node}
 	}
 

@@ -12,6 +12,7 @@ import (
 	"github.com/ethereum/go-ethereum/ethdb"
 	"io/ioutil"
 	"log"
+	"strings"
 )
 
 var db ethdb.Database
@@ -92,6 +93,9 @@ func main() {
 	//log.Printf("Result: %x\n", res)
 
 	for _, frame := range tracer.Stack {
-		log.Printf("Depth: %d, Contract: %s, Instruction: %d // %s", frame.Depth, frame.Contract, frame.Instruction, frame.Source)
+		//log.Printf("Depth: %d, Contract: %s, Instruction: %d // %s", frame.Depth, frame.Contract, frame.Instruction, frame.Source)
+		contract := contracts[frame.Contract]
+
+		log.Printf("%s:%d%s%s", contract.Name, frame.Line, strings.Repeat("\t", int(frame.Depth+2)), frame.Source)
 	}
 }
