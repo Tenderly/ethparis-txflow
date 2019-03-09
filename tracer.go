@@ -23,6 +23,8 @@ type CallFrame struct {
 	PC uint64
 
 	Depth uint64 `json:"level"`
+
+	Params []string `json:"params"`
 }
 
 type CallStack []*CallFrame
@@ -102,40 +104,55 @@ func (t *Tracer) CaptureStart(from common.Address, to common.Address, call bool,
 	//log.Printf("Start: from %s, to %s, call %t, input 0x%x, gas %d, value %d", from.String(), strings.ToLower(to.String()), call, input, gas, value)
 	for _, fnDef := range fnDefs {
 		ref := fnDef.Receiver()
-		if ref == target {
-			parts := strings.Split(fnDef.Source, ":")
-			if len(parts) < 2 {
-				panic("No parts")
-			}
-
-			start, err := strconv.Atoi(parts[0])
-			if err != nil {
-				panic(err)
-			}
-			length, err := strconv.Atoi(parts[1])
-
-			i := 0
-			l := 1
-			c := 1
-
-			for i < start {
-				if contract.SourceCode[i] == '\n' {
-					l++
-					c = 0
-				}
-
-				c++
-				i++
-			}
-
-			t.Stack.Push(&CallFrame{
-				Contract:    strings.ToLower(to.String()),
-				Instruction: 0,
-				Source:      strings.Split(contract.SourceCode[start:start+length], "\n")[0],
-				Depth:       0,
-				Line:        l,
-			})
+		if ref != target {
+			continue
 		}
+
+		parts := strings.Split(fnDef.Source, ":")
+		if len(parts) < 2 {
+			panic("No parts")
+		}
+
+		start, err := strconv.Atoi(parts[0])
+		if err != nil {
+			panic(err)
+		}
+		length, err := strconv.Atoi(parts[1])
+
+		i := 0
+		l := 1
+		c := 1
+
+		for i < start {
+			if contract.SourceCode[i] == '\n' {
+				l++
+				c = 0
+			}
+
+			c++
+			i++
+		}
+
+		var params []string
+		offset := 4
+		for _, param := range fnDef.Parameters.Parameters {
+			p, o := DecodeParam(param, offset, input)
+			offset += o
+			if p == "" {
+				continue
+			}
+
+			params = append(params, p)
+		}
+
+		t.Stack.Push(&CallFrame{
+			Contract:    strings.ToLower(to.String()),
+			Instruction: 0,
+			Source:      strings.Split(contract.SourceCode[start:start+length], "\n")[0],
+			Depth:       0,
+			Line:        l,
+			Params:      params,
+		})
 	}
 
 	return nil
@@ -321,4 +338,34 @@ func (t *Tracer) isFunctionDefinition(contract *vm.Contract, mapping *SourceMapp
 	}
 
 	return false
+}
+
+func DecodeParam(node *AstNode, offset int, input []byte) (string, int) {
+	name := node.TypeDescriptions.TypeString
+	if strings.HasPrefix(name, "int") ||
+		strings.HasPrefix(name, "uint") {
+		val := big.NewInt(0)
+		val.SetBytes(input[offset : offset+32])
+
+		return node.Name + "=" + val.String(), 32
+	}
+
+	if name == "address" {
+		val := input[offset : offset+32]
+
+		return node.Name + "=" + common.BytesToAddress(val).String(), 32
+	}
+
+	if name == "bool" {
+		val := big.NewInt(0)
+		val.SetBytes(input[offset : offset+32])
+
+		if val.Cmp(big.NewInt(0)) > 0 {
+			return node.Name + "=true", 32
+		} else {
+			return node.Name + "=false", 32
+		}
+	}
+
+	return "", 32
 }

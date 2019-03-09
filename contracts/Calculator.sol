@@ -64,4 +64,10 @@ contract Calculator {
 
         return res;
     }
+
+    function testFunc(int8 x, int y, uint256 z, bool a, address b) public returns (int) {
+        counter++;
+
+        return counter;
+    }
 }

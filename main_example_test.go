@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core"
 	"github.com/ethereum/go-ethereum/core/rawdb"
@@ -66,6 +67,10 @@ func TestExample(t *testing.T) {
 		//log.Printf("Depth: %d, Contract: %s, Instruction: %d // %s", frame.Depth, frame.Contract, frame.Instruction, frame.Source)
 		contract := contracts[frame.Contract]
 
-		log.Printf("%s:%d %s%s", contract.Name, frame.Line, strings.Repeat("\t", int(frame.Depth)), frame.Source)
+		fmt.Printf("%s:%d %s%s", contract.Name, frame.Line, strings.Repeat("\t", int(frame.Depth)), frame.Source)
+		if len(frame.Params) > 0 {
+			fmt.Printf("    // %s", strings.Join(frame.Params, " "))
+		}
+		fmt.Print("\n")
 	}
 }

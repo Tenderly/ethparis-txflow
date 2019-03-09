@@ -2,20 +2,23 @@ var Calculator = artifacts.require("Calculator");
 var fs = require("fs");
 
 module.exports = async () => {
-    let instance = await Calculator.deployed();
+  let instance = await Calculator.deployed();
 
-    let tx;
+  let tx;
 
-    tx = await instance.add(5);
-    console.log(`add(5) => ${tx.tx}`);
-    tx = await instance.mul(20);
-    console.log(`mul(20) => ${tx.tx}`);
+  tx = await instance.testFunc(0xa, 1000, 77, true, "0x20a5814b73Ef3537c6E099a0d45C798F4BD6e1D6");
+  console.log(`testFunc(0xa, 1000, 77, true, "0x20a5814b73Ef3537c6E099a0d45C798F4BD6e1D6") => ${tx.tx}`);
 
-    fs.writeFileSync("config.json", JSON.stringify({
-        address: instance.address,
+  tx = await instance.add(0x5);
+  console.log(`add(0x5) => ${tx.tx}`);
+  tx = await instance.mul(0xa);
+  console.log(`mul(0xa) => ${tx.tx}`);
 
-        from: tx.receipt.from,
-        tx: tx.tx,
-    }));
+  fs.writeFileSync("config.json", JSON.stringify({
+    address: instance.address,
+
+    from: tx.receipt.from,
+    tx: tx.tx,
+  }));
 };
 
