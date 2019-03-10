@@ -14,13 +14,23 @@ const EXPAND_BY = 5;
 class Stack extends Component {
   constructor(props) {
     super(props);
+    const split = props.source.split("\n");
+
+    let source = this.props.source;
+
+    if (props.params && props.params.length) {
+      split[props.line - 1] = `${split[props.line - 1]} // ${props.params.join(', ')}`;
+      source = split.join("\n");
+    }
+
     this.state = {
       ref: React.createRef(),
       linesAbove: 5,
       linesBelow: 5,
       expandAboveDisabled: false,
       expandAboveBelow: false,
-      numberOfLines: props.source.split("\n").length,
+      numberOfLines: split.length,
+      source,
     }
   }
 
@@ -53,8 +63,8 @@ class Stack extends Component {
   }
 
   render() {
-    const {source, line} = this.props;
-    const {linesAbove, linesBelow, expandAboveDisabled, expandBelowDisabled} = this.state;
+    const {line} = this.props;
+    const {source, linesAbove, linesBelow, expandAboveDisabled, expandBelowDisabled} = this.state;
 
     const lineNumbers = [];
     const wrapperStyle = {};
@@ -94,6 +104,7 @@ class Stack extends Component {
 Stack.propTypes = {
   source: PropTypes.string.isRequired,
   line: PropTypes.number.isRequired,
+  params: PropTypes.any,
 };
 
 export default Stack;
