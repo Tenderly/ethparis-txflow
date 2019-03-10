@@ -68,6 +68,12 @@ contract Calculator {
     function testFunc(int8 x, int y, uint256 z, bool a, address b) public returns (int) {
         counter++;
 
+        return testInternal(x, y, z, a, b);
+    }
+
+    function testInternal(int8 x, int y, uint256 z, bool a, address b) private returns (int) {
+        counter++;
+
         return counter;
     }
 }

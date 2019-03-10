@@ -266,10 +266,27 @@ func (t *Tracer) CaptureState(env *vm.EVM, pc uint64, op vm.OpCode, gas, cost ui
 			return nil
 		}
 
-		if t.isFunctionDefinition(contract, srcMapping) && t.LastJump != nil {
+		if fnDef := t.isFunctionDefinition(contract, srcMapping); fnDef != nil && t.LastJump != nil {
 			if ok, err := regexp.MatchString(`(?m)function(.*\s)+}`, t.LastJump.Source); ok || err != nil {
 				return nil
 			}
+
+			paramNodes := fnDef.Parameters.Parameters
+			var params []string
+			for i := 0; i < len(paramNodes); i++ {
+				p := DecodeStack(paramNodes[len(paramNodes)-1-i], stack.Back(i))
+				if p == "" {
+					continue
+				}
+
+				params = append(params, p)
+			}
+
+			for left, right := 0, len(params)-1; left < right; left, right = left+1, right-1 {
+				params[left], params[right] = params[right], params[left]
+			}
+
+			t.LastJump.Params = params
 
 			t.Stack.Push(t.LastJump)
 			t.jumpDepth++
@@ -376,20 +393,41 @@ func (t *Tracer) toPreviousSourceMapping(contract *vm.Contract, instruction uint
 	return srcMap[realInstruction]
 }
 
-func (t *Tracer) isFunctionDefinition(contract *vm.Contract, mapping *SourceMapping) bool {
+func (t *Tracer) isFunctionDefinition(contract *vm.Contract, mapping *SourceMapping) *AstNode {
 	fnDefs, ok := t.functionDefs[strings.ToLower(contract.Address().String())]
 	if !ok {
-		return false
+		return nil
 	}
 
 	for _, fnDef := range fnDefs {
 		parts := strings.Split(fnDef.Source, ":")
 		if parts[0] == strconv.Itoa(mapping.Start) {
-			return true
+			return fnDef
 		}
 	}
 
-	return false
+	return nil
+}
+
+func (t *Tracer) findFnDef(addr string, receiver []byte) *AstNode {
+	contract, ok := t.contracts[strings.ToLower(addr)]
+	if !ok {
+		return nil
+	}
+
+	fnDefs := DiscoverFunctionDefinitions(contract.Ast)
+
+	target := fmt.Sprintf("%x", receiver[:4])
+	for _, fnDef := range fnDefs {
+		ref := fnDef.Receiver()
+		if ref != target {
+			continue
+		}
+
+		return fnDef
+	}
+
+	return nil
 }
 
 func DecodeParam(node *AstNode, offset int, input []byte) (string, int) {
@@ -422,23 +460,25 @@ func DecodeParam(node *AstNode, offset int, input []byte) (string, int) {
 	return "", 32
 }
 
-func (t *Tracer) findFnDef(addr string, receiver []byte) *AstNode {
-	contract, ok := t.contracts[strings.ToLower(addr)]
-	if !ok {
-		return nil
+func DecodeStack(node *AstNode, item *big.Int) string {
+	name := node.TypeDescriptions.TypeString
+	if strings.HasPrefix(name, "int") ||
+		strings.HasPrefix(name, "uint") {
+
+		return node.Name + "=" + item.String()
 	}
 
-	fnDefs := DiscoverFunctionDefinitions(contract.Ast)
+	if name == "address" {
+		return node.Name + "=" + common.BigToAddress(item).String()
+	}
 
-	target := fmt.Sprintf("%x", receiver[:4])
-	for _, fnDef := range fnDefs {
-		ref := fnDef.Receiver()
-		if ref != target {
-			continue
+	if name == "bool" {
+		if item.Cmp(big.NewInt(0)) > 0 {
+			return node.Name + "=true"
+		} else {
+			return node.Name + "=false"
 		}
-
-		return fnDef
 	}
 
-	return nil
+	return ""
 }
