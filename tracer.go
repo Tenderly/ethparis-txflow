@@ -437,13 +437,13 @@ func DecodeParam(node *AstNode, offset int, input []byte) (string, int) {
 		val := big.NewInt(0)
 		val.SetBytes(input[offset : offset+32])
 
-		return node.Name + "=" + val.String(), 32
+		return node.Name + " = " + val.String(), 32
 	}
 
 	if name == "address" {
 		val := input[offset : offset+32]
 
-		return node.Name + "=" + common.BytesToAddress(val).String(), 32
+		return node.Name + " = " + common.BytesToAddress(val).String(), 32
 	}
 
 	if name == "bool" {
@@ -451,9 +451,9 @@ func DecodeParam(node *AstNode, offset int, input []byte) (string, int) {
 		val.SetBytes(input[offset : offset+32])
 
 		if val.Cmp(big.NewInt(0)) > 0 {
-			return node.Name + "=true", 32
+			return node.Name + " = true", 32
 		} else {
-			return node.Name + "=false", 32
+			return node.Name + " = false", 32
 		}
 	}
 
@@ -465,18 +465,18 @@ func DecodeStack(node *AstNode, item *big.Int) string {
 	if strings.HasPrefix(name, "int") ||
 		strings.HasPrefix(name, "uint") {
 
-		return node.Name + "=" + item.String()
+		return node.Name + " = " + item.String()
 	}
 
 	if name == "address" {
-		return node.Name + "=" + common.BigToAddress(item).String()
+		return node.Name + " = " + common.BigToAddress(item).String()
 	}
 
 	if name == "bool" {
 		if item.Cmp(big.NewInt(0)) > 0 {
-			return node.Name + "=true"
+			return node.Name + " = true"
 		} else {
-			return node.Name + "=false"
+			return node.Name + " = false"
 		}
 	}
 

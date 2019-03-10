@@ -1,4 +1,4 @@
-.PHONY: geth reset contracts
+.PHONY: geth setup reset start
 
 geth:
 	geth --datadir ./datadir --dev --gcmode archive \
@@ -10,3 +10,6 @@ setup:
 
 reset:
 	rm -rf ./datadir
+
+start:
+	go run .
