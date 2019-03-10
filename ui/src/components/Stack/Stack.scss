@@ -60,6 +60,10 @@ $ExpandCodeButtonSize: 37px;
       margin: 0;
       font-family: $MonospaceFontFamily;
 
+      .hljs-comment {
+        color: #3aca5b;
+      }
+
       &::selection, & *::selection {
         background-color: transparentize($PrimaryColor600, 0.5);
       }
