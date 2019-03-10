@@ -36,6 +36,10 @@ class LiveContractService {
       };
     }
 
+    for (const c in contractCache) {
+      console.log(contractCache[c].variant);
+    }
+
     return contractCache[address];
   }
 }
